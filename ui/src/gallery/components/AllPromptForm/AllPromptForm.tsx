@@ -1,13 +1,19 @@
 import { Box, Flex, Text, Stack } from "@chakra-ui/react";
 import { FormItemComponent } from "../FormItem/FormItemComponent.tsx";
 import { isInTopField } from "../MetaBox/MetadataForm.tsx";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState, } from "react";
 import { MetaBoxContext } from "../MetaBox/metaBoxContext.ts";
-import { PromptNodeInputItem } from "../MetaBox/utils.ts";
+import { ImagePrompt, PromptNodeInputItem, calcInputListRecursive } from "../MetaBox/utils.ts";
+import { WorkspaceContext } from "../../../WorkspaceContext.ts";
+import { workflowsTable } from "../../../db-tables/WorkspaceDB.ts";
+// @ts-ignore
+import { app } from "/scripts/app.js";
 
 export default function AllPromptForm() {
   const { topFields, calcInputList, showNodeName } = useContext(MetaBoxContext);
-
+  const {
+    curFlowID,
+  } = useContext(WorkspaceContext);
   const groupInputsByNodeType = useCallback(
     (inputList: PromptNodeInputItem[]) => {
       const groupedInputs: PromptNodeInputItem[][] = [];
@@ -28,12 +34,42 @@ export default function AllPromptForm() {
     [],
   );
 
-  useEffect(() => {}, [showNodeName]);
+  useEffect(() => { }, [showNodeName]);
+  const [currentImagePrompt, setCurrentImagePrompt] = useState<ImagePrompt>();
+  const [currentCalcInputList, setCurrentCalcInputList] = useState<PromptNodeInputItem[]>([]);
+
+  useEffect(() => {
+    if (!currentImagePrompt) return;
+    const calcInput = calcInputListRecursive(currentImagePrompt);
+    setCurrentCalcInputList(calcInput);
+  }, [currentImagePrompt]);
+  useEffect(() => {
+    async function loadCurrent() {
+      app.graphToPrompt(app.graph)
+        .then((data: { output: any; workflow: any }) => {
+          setCurrentImagePrompt(data.output);
+        });
+    }
+    if (curFlowID) {
+      loadCurrent()
+    }
+
+  }, [curFlowID])
+
+
+  useEffect(() => {
+    calcInputList.forEach((input, idx) => {
+      const currentInputItem = currentCalcInputList[idx]
+      if (input.nodeID === currentInputItem.nodeID && input.inputName === currentInputItem.inputName && currentInputItem.inputValue !== input.inputValue) {
+        input.latestInputVal = currentInputItem.inputValue
+      }
+    })
+  }, [currentCalcInputList, calcInputList])
 
   if (!showNodeName) {
     return (
       <Stack>
-        {calcInputList.map((input) => {
+        {calcInputList.map((input, idx) => {
           if (
             isInTopField(topFields, {
               name: input.inputName,
@@ -43,6 +79,7 @@ export default function AllPromptForm() {
           ) {
             return null;
           }
+
           return (
             <FormItemComponent
               key={`form${input.nodeID}${input.inputName}`}
