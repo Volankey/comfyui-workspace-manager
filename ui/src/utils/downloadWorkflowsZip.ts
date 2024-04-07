@@ -1,6 +1,6 @@
 import { Workflow } from "../types/dbTypes";
 import { formatTimestamp } from "../utils";
-import JSZip from "JSZip";
+import JSZip from "jszip";
 import { genFolderRelPath } from "../db-tables/DiskFileUtils";
 import { sanitizeRelPath } from "../utils/OsPathUtils";
 import { userSettingsTable } from "../db-tables/WorkspaceDB";

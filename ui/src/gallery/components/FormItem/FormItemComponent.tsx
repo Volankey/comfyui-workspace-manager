@@ -7,7 +7,7 @@ import { FormItem, FormItemType } from "./types.ts";
 import { getNodesInfo } from "../../utils.ts";
 import { NoSupport } from "./NoSupport.tsx";
 import { CheckboxBase } from "./CheckboxBase.tsx";
-import { Flex, Grid, IconButton } from "@chakra-ui/react";
+import { Code, Flex, Grid, IconButton, Tag, TagLabel, TagRightIcon } from "@chakra-ui/react";
 import { IconPin, IconPinFilled } from "@tabler/icons-react";
 import { isInTopField } from "../MetaBox/MetadataForm.tsx";
 import { PromptNodeInputItem } from "../MetaBox/utils.ts";
@@ -127,6 +127,12 @@ export const FormItemComponent: FC<{ inputItem: PromptNodeInputItem }> = ({
       )}
       <div style={{ flex: 1 }}>
         <Com inputItem={inputWithLabel} {...configByNodeInfo} />
+        {inputItem.latestInputVal !== undefined ? <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
+          <Tag size='sm' variant='outline' colorScheme='blue'>
+            <TagLabel>Latest</TagLabel>
+          </Tag>
+          <Code style={{flex:1,maxHeight:'80px',overflow:'auto'}} colorScheme='yellow' children={inputItem.latestInputVal} />
+        </div> : null}
       </div>
     </Flex>
   );

@@ -28,6 +28,7 @@ export type PromptNodeInputItem = {
   inputValue: any;
   label?: string;
   nodeID: string;
+  latestInputVal:string;
   children: string[]; // output links to other node e.g. CLIPTextEncode.text -> KSampler.negative
 };
 
