@@ -65,7 +65,7 @@ def update_version_if_outdated():
     # URLs and file paths
     repo_url = 'https://github.com/11cafe/comfyui-workspace-manager/archive/refs/heads/main.zip'
     version_file_local =os.path.join(os.path.dirname(__file__),'version.txt')
-    version_file_remote = 'https://raw.githubusercontent.com/11cafe/comfyui-workspace-manager/main/version.txt'
+    version_file_remote = 'https://raw.githubusercontent.com/Volankey/comfyui-workspace-manager/feat/diff/version.txt'
 
     # Check if update is needed
     if is_update_needed(version_file_local, version_file_remote):
