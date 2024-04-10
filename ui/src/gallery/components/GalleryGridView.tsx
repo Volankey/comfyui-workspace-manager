@@ -11,7 +11,7 @@ export default function GalleryGridView({
   searchQuery: string;
 }) {
   const [medias, setMedias] = useState<Media[]>([]);
-  const { setCurMedia, setShowAllImages, setMediaList } =
+  const { setCurMedia, setShowAllImages, setMediaList,diffMode } =
     useContext(GalleryContext);
   useEffect(() => {
     if (searchQuery === "") {

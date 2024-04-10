@@ -8,6 +8,8 @@ import { WorkspaceContext } from "../../../WorkspaceContext.ts";
 import { workflowsTable } from "../../../db-tables/WorkspaceDB.ts";
 // @ts-ignore
 import { app } from "/scripts/app.js";
+import { GalleryContext } from "../../GalleryContext.ts";
+import { getMetadataFromUrl } from "../../utils.ts";
 
 export default function AllPromptForm() {
   const { topFields, calcInputList, showNodeName } = useContext(MetaBoxContext);
@@ -33,37 +35,43 @@ export default function AllPromptForm() {
     },
     [],
   );
-
-  useEffect(() => { }, [showNodeName]);
-  const [currentImagePrompt, setCurrentImagePrompt] = useState<ImagePrompt>();
+  ////////////////////
+  const { diffMode, diffImgSrc } = useContext(GalleryContext);
   const [currentCalcInputList, setCurrentCalcInputList] = useState<PromptNodeInputItem[]>([]);
-
+  const [currentImagePrompt, setCurrentImagePrompt] = useState<ImagePrompt>();
   useEffect(() => {
     if (!currentImagePrompt) return;
     const calcInput = calcInputListRecursive(currentImagePrompt);
     setCurrentCalcInputList(calcInput);
   }, [currentImagePrompt]);
+  async function loadCurrent() {
+    return app.graphToPrompt(app.graph)
+      .then((data: { output: any; workflow: any }) => {
+        setCurrentImagePrompt(data.output);
+      });
+  }
+  async function getMetadataFromDiffImgSrc(name: string) {
+    const { prompt } = await getMetadataFromUrl('/workspace/view_media?filename=' + name)
+    setCurrentImagePrompt(prompt);
+  }
   useEffect(() => {
-    async function loadCurrent() {
-      app.graphToPrompt(app.graph)
-        .then((data: { output: any; workflow: any }) => {
-          setCurrentImagePrompt(data.output);
-        });
-    }
-    if (curFlowID) {
+    if (diffImgSrc) {
+      getMetadataFromDiffImgSrc(diffImgSrc)
+    } else if (curFlowID) {
       loadCurrent()
     }
-
-  }, [curFlowID])
-
-
+  }, [curFlowID, diffImgSrc]);
+  ////////////////////
   useEffect(() => {
     calcInputList.forEach((input, idx) => {
       const currentInputItem = currentCalcInputList[idx]
-      if (input.nodeID === currentInputItem.nodeID && input.inputName === currentInputItem.inputName && currentInputItem.inputValue !== input.inputValue) {
+      if (currentInputItem && input.nodeID === currentInputItem.nodeID && input.inputName === currentInputItem.inputName && currentInputItem.inputValue !== input.inputValue) {
         input.latestInputVal = currentInputItem.inputValue
+      } else {
+        input.latestInputVal = undefined
       }
     })
+    console.log('calcInputList diff', calcInputList)
   }, [currentCalcInputList, calcInputList])
 
   if (!showNodeName) {
@@ -84,6 +92,9 @@ export default function AllPromptForm() {
             <FormItemComponent
               key={`form${input.nodeID}${input.inputName}`}
               inputItem={input}
+              diffMode={diffMode}
+              selectedDiffName={diffImgSrc}
+
             />
           );
         })}
@@ -118,6 +129,8 @@ export default function AllPromptForm() {
                   <FormItemComponent
                     key={`form${input.nodeID}${input.inputName}`}
                     inputItem={input}
+                    diffMode={diffMode}
+                    selectedDiffName={diffImgSrc}
                   />
                 );
               })}

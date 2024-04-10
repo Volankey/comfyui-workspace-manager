@@ -125,6 +125,7 @@ export const GalleryRightColHeaderButtons = ({
       >
         Load
       </Button>
+
     </Flex>
   );
 };

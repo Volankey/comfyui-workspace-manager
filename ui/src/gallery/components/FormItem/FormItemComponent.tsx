@@ -74,8 +74,10 @@ function getInputConfigByInfo(
   return { type: FormItemType.NoSupport };
 }
 
-export const FormItemComponent: FC<{ inputItem: PromptNodeInputItem }> = ({
+export const FormItemComponent: FC<{ inputItem: PromptNodeInputItem, diffMode: 'select' | 'latest', selectedDiffName?: string }> = ({
   inputItem,
+  diffMode,
+  selectedDiffName
 }) => {
   const configByNodeInfo = getInputConfigByInfo(
     inputItem.classType,
@@ -127,11 +129,11 @@ export const FormItemComponent: FC<{ inputItem: PromptNodeInputItem }> = ({
       )}
       <div style={{ flex: 1 }}>
         <Com inputItem={inputWithLabel} {...configByNodeInfo} />
-        {inputItem.latestInputVal !== undefined ? <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
+        {inputItem.latestInputVal !== undefined ? <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <Tag size='sm' variant='outline' colorScheme='blue'>
-            <TagLabel>Latest</TagLabel>
+            <TagLabel>{diffMode === 'select' ? selectedDiffName : 'LATEST'}</TagLabel>
           </Tag>
-          <Code style={{flex:1,maxHeight:'80px',overflow:'auto'}} colorScheme='yellow' children={inputItem.latestInputVal} />
+          <Code style={{ flex: 1, maxHeight: '80px', overflow: 'auto' }} colorScheme='yellow' children={inputItem.latestInputVal} />
         </div> : null}
       </div>
     </Flex>

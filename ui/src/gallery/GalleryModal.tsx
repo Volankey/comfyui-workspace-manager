@@ -1,6 +1,7 @@
 // @ts-expect-error ComfyUI import
 import { app } from "/scripts/app.js";
 import {
+  Button,
   Checkbox,
   Flex,
   Heading,
@@ -35,6 +36,15 @@ export default function GalleryModal({ onclose }: { onclose: () => void }) {
   const [searchValue, setSearchValue] = useState("");
   const debounceSearchValue = useDebounce(searchValue, 300);
   const [showAllImages, setShowAllImages] = useState(false);
+  const [diffMode, _setDiffMode] = useState<'latest' | 'select'>('latest');
+  const [diffImgSrc, setDiffImgSrc] = useState<string | undefined>();
+
+  const setDiffMode = (mode: 'latest' | 'select') => {
+    _setDiffMode(mode);
+    if (mode === 'select') {
+      setDiffImgSrc(undefined)
+    }
+  }
 
   const loadData = async () => {
     if (curFlowID == null) return;
@@ -70,6 +80,10 @@ export default function GalleryModal({ onclose }: { onclose: () => void }) {
         setMediaList: setImages,
         showAllImages,
         setShowAllImages,
+        diffMode,
+        setDiffMode,
+        diffImgSrc,
+        setDiffImgSrc,
       }}
     >
       <Modal isOpen={true} onClose={onclose} blockScrollOnMount={true}>
@@ -92,6 +106,12 @@ export default function GalleryModal({ onclose }: { onclose: () => void }) {
                 placeholder="Search prompt, model name, etc."
                 style={{ width: "300px" }}
               />
+
+              <Button onClick={
+                () => setDiffMode(diffMode === 'latest' ? 'select' : 'latest')
+              } size={"sm"}>
+                {diffMode === 'latest' ? "Select Diff" : "Diff Latest"}
+              </Button>
             </HStack>
             {isSelecting && (
               <HStack gap={3}>

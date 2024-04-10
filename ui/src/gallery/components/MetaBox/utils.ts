@@ -28,7 +28,8 @@ export type PromptNodeInputItem = {
   inputValue: any;
   label?: string;
   nodeID: string;
-  latestInputVal:string;
+  latestInputVal:string | undefined;
+  diffMode?: 'latest' | 'select';
   children: string[]; // output links to other node e.g. CLIPTextEncode.text -> KSampler.negative
 };
 
